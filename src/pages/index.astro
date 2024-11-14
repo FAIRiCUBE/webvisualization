@@ -1,0 +1,46 @@
+---
+import "ol/ol.css";
+import LogoNILU from "../components/LogoNILU.astro";
+import LogoProject from "../components/LogoProject.astro";
+import App from "../components/App.jsx";
+
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Map</title>
+	</head>
+	<body>
+
+        <div class="map-container"></div>
+
+		<LogoNILU />
+		<LogoProject />
+		<App client:only="solid" />
+
+	</body>
+
+</html>
+
+<style>
+html, body {
+	margin: 0;
+	height: 100%;
+	width: 100%;
+	font-family: sans-serif;
+}
+
+
+
+.map-container {
+	margin: 0;
+	height: 100%;
+	width: 100%;
+	font-family: sans-serif;
+}
+
+</style>
