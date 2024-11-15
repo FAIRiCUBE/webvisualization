@@ -14,6 +14,11 @@ export function showWholeCollection(collectionUrl){
     const layer = new STAC({
         url: collectionUrl,
         displayPreview: true,
+        collectionStyle: {
+            color: 'red',
+        },
+        assets: ['data'],
+
     });
 
     const background = new TileLayer({source: new OSM()});
@@ -27,15 +32,15 @@ export function showWholeCollection(collectionUrl){
     }),
     });
     map.on('singleclick', async (event) => {
-    const objects = await getStacObjectsForEvent(event);
-    if (objects.length > 0) {
-        const ids = objects.map((obj) => obj.properties.productIdentifier);
-        document.getElementById('ids').innerText = ids.join(', ');
-    }
+        const objects = await getStacObjectsForEvent(event);
+        if (objects.length > 0) {
+            objects.forEach((obj) => console.log(obj));
+        }
     });
+
     layer.on('sourceready', () => {
-    const view = map.getView();
-    view.fit(layer.getExtent());
+        const view = map.getView();
+        view.fit(layer.getExtent());
     });
 
     return false;
