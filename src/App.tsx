@@ -1,21 +1,25 @@
 import { createSignal } from 'solid-js'
 import './App.css'
+import {buildMap} from './components/Map.js'
+import STACTreeView from './components/STACTreeView.jsx'
+
 
 function App() {
-  const [count, setCount] = createSignal(0)
+
+  buildMap();
 
   return (
     <>
 
       <h1>FAIRiCUBE Visualization Service</h1>
-      <div class="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count()}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+
+
+      <div id="map-container"/>
+
+      <div class="stactreeview">
+        <STACTreeView />
       </div>
+
     </>
   )
 }

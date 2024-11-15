@@ -3,9 +3,8 @@ import * as ol from 'ol';
 import TileLayer from 'ol/layer/WebGLTile';
 import VectorTileLayer from 'ol/layer/VectorTile';
 import VectorTileSource from 'ol/source/VectorTile';
-import {getVectorFeatureStyle} from './utils/vectorFeatureStyle.js';
 import MVT from 'ol/format/MVT';
-import {createBasemapLayer} from './utils/createBasemap.js';
+import {createBasemapLayer} from './utils/createBasemapLayer.js';
 import {createVectorLayer} from './utils/createVectorLayer.js';
 // @ts-ignore
 import OldTileLayer from 'ol/layer/Tile';
@@ -32,7 +31,7 @@ let map = null;
 
 
 
-async function buildMap() {
+export async function buildMap() {
 
   // This style flag is used to prevent setting the style multiple times
   // When we build a fresh map we can reset this flag
