@@ -1,0 +1,38 @@
+
+<!-- images/fairicube_logo_400x297.jpg in the lower right corner -->
+<div id="projectlogo"></div>
+<!-- NILU.svg in the lower left corner -->
+<object id="nilulogo" data="/NILU_Logo_Seagreen_RGB_small.svg" type="image/svg+xml"></object>
+
+
+    
+<style>
+
+#projectlogo {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  width: 100px;
+  height: 100px;
+  background-image: url('/fairicube_logo_400x297.jpg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  /* Set white as transparent */
+  mix-blend-mode: multiply;
+  border-radius: 5px;
+}
+#nilulogo {
+  position: absolute;
+  bottom: 15px;
+  left: 120px;
+  width: 40px;
+  height: 40px;
+  svg path {
+    fill: currentColor;
+    &:hover {
+      fill: red;
+    }
+  }
+}    
+</style>

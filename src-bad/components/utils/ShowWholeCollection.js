@@ -1,11 +1,10 @@
-import Map from 'ol/Map';
-import OSM from 'ol/source/OSM';
-import STAC from 'ol-stac';
+import Map from 'ol/Map.js';
+import OSM from 'ol/source/OSM.js';
+import STAC from '../../ol/layer/STAC';
 import TileLayer from 'ol/layer/WebGLTile.js';
 import View from 'ol/View.js';
 import proj4 from 'proj4';
-import * as olSTACUtil from 'ol-stac/util';
-//import {getStacObjectsForEvent} from 'ol/util';
+import {getStacObjectsForEvent} from '../../ol/util.js';
 import {register} from 'ol/proj/proj4.js';
 
 register(proj4); // required to support source reprojection
@@ -33,7 +32,7 @@ export function showWholeCollection(collectionUrl){
     }),
     });
     map.on('singleclick', async (event) => {
-        const objects = await olSTACUtil.getStacObjectsForEvent(event);
+        const objects = await getStacObjectsForEvent(event);
         if (objects.length > 0) {
             objects.forEach((obj) => console.log(obj));
         }

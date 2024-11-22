@@ -1,0 +1,46 @@
+:root {
+    --nilu-dark-blue: rgb(5, 63, 83);
+    --nilu-med-blue: rgb(159, 210, 254);
+    --nilu-light-blue: rgb(233, 254, 255);
+    --nilu-soft-accent: rgb(84, 254, 219);
+    --nilu-soft-accent-dark: rgb(58, 177, 153);
+    --nilu-bright-accent: rgb(233, 60, 172);
+    --nilu-gray: rgb(176, 184, 194);
+    --nilu-dark-gray: rgba(6, 58, 75, 0.715);
+    --iconSize: 1.5rem;
+  }
+  
+.stactreeview {
+    background-color: var(--nilu-light-blue);
+    
+    max-height: 80vh;
+    width: 20vw;
+    padding: 1rem;
+    overflow: auto;
+    position: absolute;
+    top: 0.5vh;
+    left: 0.5vw;
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      li {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+        a.stacitemasset {
+          color: var(--nilu-dark-blue);
+          &::before {
+            content: 'Data Asset:';
+            margin-right: 0.5rem;
+          }
+          margin-left: 1rem;
+        }
+      }
+    }
+    a {
+      display: block;
+    }
+}
+  

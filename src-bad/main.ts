@@ -1,10 +1,10 @@
 
 import styles from "./App.module.css";
 import { createSignal } from "solid-js";
-import Colorbar from "./Colorbar.jsx";
-import ChoosePalette from "./ChoosePalette.jsx";
-import ChooseVectorLayer from "./ChooseVectorLayer.jsx";
-import ChooseRasterLayer from "./ChooseRasterLayer.jsx";
+import Colorbar from "./components/Colorbar.jsx";
+import ChoosePalette from "./components/ChoosePalette.jsx";
+import ChooseVectorLayer from "./components/ChooseVectorLayer.jsx";
+import ChooseRasterLayer from "./components/ChooseRasterLayer.jsx";
 import proj4 from 'proj4';
 import {register} from 'ol/proj/proj4';
 

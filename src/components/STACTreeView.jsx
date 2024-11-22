@@ -1,6 +1,7 @@
 import { createResource, createSignal } from "solid-js";
-import { getAllSTACItems } from "../scripts/getAllItems";
+import { getAllSTACItems } from "../scripts/getAllSTACItems";
 import { showWholeCollection } from "./utils/ShowWholeCollection";
+import STAC from 'ol-stac';
 
 export default function STACTreeView(props) {
 
@@ -13,13 +14,18 @@ export default function STACTreeView(props) {
 
     setDummySignal(true);
  
-    return <For each={STACCatalogs()} fallback={<div>Loading...</div>}>
-        
-        {(collection, collectionIdx) => {
-            return <ViewCollection collection={collection} />
-        }}
-    </For>
+    return  <div class="stactreeview">
+        <For each={STACCatalogs()} fallback={<div>Loading...</div>}>
+            
+            {(collection, collectionIdx) => {
+                return <ViewCollection collection={collection} />
+            }}
+        </For>
+    </div>
 }
+
+
+
 
 function ViewCollection({collection}) {
 
@@ -31,14 +37,19 @@ function ViewCollection({collection}) {
     <ul>
         <For each={collection.items}>
             {(item, itemIdx) => {
-                return <li>{item.id}<br/>
+                // find the item in item.links[] array named "rel"="self" and get the "href" attribute of that item
+                const selfLink = item.links.find(link => link.rel == "self");
+                const href = selfLink ? selfLink.href : null;
+
+                const handleClickOnSTACItem = (e) => {
+                    e.preventDefault();
+                    localStorage.setItem('stac', e.target.href);
+                    document.dispatchEvent(new Event('newsource'));
+                }
+
+                return <li><a href={href} onClick={handleClickOnSTACItem}>{item.id}</a>
                 <For each={Object.entries(item.assets)}>
-                    {(entry) => {
-                        const [key, val] = entry;
-                        // If val.rolesdoes not contain "data", skip
-                        if (!val.roles.includes("data")) return <>🔗</>
-                        return <div>🔎 {val?.description  ?? val.id ?? key}:  {val.href}</div>
-                    }}
+                    {(entry) => <STACItem entry={entry} />}
                 </For>
                 
                 </li>
@@ -47,3 +58,33 @@ function ViewCollection({collection}) {
     </ul>
     </div>
 }
+
+function STACItem({entry}) {
+
+    const [key, val] = entry;
+
+    // If val.rolesdoes not contain "data", skip
+    if (!val.roles.includes("data")) {
+        return null;
+        return <>No asset with "data" role (only {val.roles.join(", ")})</>
+    }
+
+
+    const urlInput = document.getElementById('url-input');
+    if (urlInput) urlInput.onchange = () => document.dispatchEvent(new Event('newsource'));
+
+    const urlInputButton = document.getElementById('url-input-button');
+    if (urlInputButton) urlInputButton.onclick = () => document.dispatchEvent(new Event('newsource'));
+
+    function handleClick(e) {
+        e.preventDefault();
+
+        localStorage.setItem('url', e.target.href);
+
+        document.dispatchEvent(new Event('newsource'));
+    }
+
+    return <a href={val.href} class="stacitemasset" onClick={handleClick}>{val?.description  ?? val.id ?? key}</a>
+
+}
+

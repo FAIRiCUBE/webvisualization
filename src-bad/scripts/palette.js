@@ -1,22 +1,15 @@
 // import d3 scalechromatic
 import * as d3 from 'd3';
+/*
+import { palette } from '../components/App.js';
 
 
+export function getInterpolateBand1AsColor() {
 
-export function getInterpolateBand1AsColor(pal) {
+    const pal = palette();
 
-    // If pal is not specified, use 'rgb' if palette-rgb is checked, otherwise use 'A'
-    if (!pal) {
-        if (document.getElementById('palette-rgb').checked) pal='rgb';
-        else pal = document.querySelector('input[name="palette"]:checked').value;
-    }
-
-    // Hide #colorbar element
-    document.getElementById('colorbar').style.display = 'none';
 
     if (pal.toLowerCase()=='rgb')return { color: ['array', ['band', 1], ['band', 2], ['band', 3], 1] };
-
-    document.getElementById('colorbar').style.display = 'block';
 
     let color = null;
     if (pal=='A') color = d3.scaleSequential(d3.interpolateRainbow);
@@ -49,7 +42,6 @@ export function getInterpolateBand1AsColor(pal) {
       interpolation_to_colorbar(clr_arr.slice(3));
       return {color: clr_arr};
 
-    
 }
 
 
@@ -79,3 +71,4 @@ function interpolation_to_colorbar(interp){
 
 }
 
+*/

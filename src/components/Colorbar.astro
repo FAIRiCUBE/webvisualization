@@ -1,0 +1,53 @@
+<div id="colorbar"></div>
+
+<script>
+
+// Listen for the changes to palette or source
+document.addEventListener('newpalette', updateColorbar);
+document.addEventListener('newsource', updateColorbar);
+
+
+function updateColorbar() {
+  console.log('newpalette - updating colorbar');
+
+  const el = document.getElementById('colorbar');
+  if (!el) return;
+
+  const palette = localStorage.getItem('palette');
+
+  el.style.display = (palette=='rgb') ? 'none' : 'block';
+
+}
+
+
+
+
+
+</script>
+<style>
+
+#colorbar {
+  position: absolute;
+  bottom: 50px;
+  right: 50px;
+  width: 200px;
+  height: 5px;
+  background: none;
+  border-radius: 5px;
+  background-color: none;
+  backdrop-filter: blur(5px);
+  padding: 10px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  color: darkslategray;
+  background-color: var(--nilu-dark-gray);
+  font-size: 0.8em;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  div {
+    mix-blend-mode: plus-lighter;
+    color: white;
+  }
+}
+</style>

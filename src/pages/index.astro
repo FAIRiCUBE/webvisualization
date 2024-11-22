@@ -1,0 +1,51 @@
+---
+import Colorbar from "../components/Colorbar.astro";
+import Logos from "../components/Logos.astro";
+import Map from "../components/Map.astro";
+import Dataviewer from "../components/Dataviewer.astro";
+import STACTreeView from "../components/STACTreeView.jsx";
+import Toaster from "../components/Toaster.astro";
+import ChoosePalette from "../components/ChoosePalette.astro";
+
+export const prerender = true;
+---
+
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FAIRiCUBE Visualization</title>
+
+  </head>
+  <body>
+
+
+    <Map/>
+
+    <Dataviewer />
+
+    <STACTreeView client:idle />
+
+    <Logos />
+
+    <Colorbar />
+
+    <ChoosePalette />
+    
+    <Toaster />
+
+  </body>
+</html>
+
+
+<style is:global>
+@import "../style.css";
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+</style>

@@ -1,0 +1,56 @@
+<div id="toaster"></div>
+
+<script is:inline>
+window.newToast = ( message) => {
+
+    const msgObj = typeof message === 'string' ? {message} : message;
+
+    const toaster = document.getElementById('toaster');
+    if (!toaster) {
+        console.error('No toaster found. Message was: ', msgObj.message);
+        return;
+    }
+    const newToast = document.createElement('div');
+    newToast.classList.add('toast');
+    newToast.classList.add('fade-in');
+    newToast.innerHTML = msgObj.message;
+    toaster.appendChild(newToast);
+
+    // Set time to delete toast after 5 seconds
+    window.setTimeout(() => {
+        newToast.classList.remove('fade-in');
+    }, 4500);
+
+    // Set time to delete toast after 5 seconds
+    window.setTimeout(() => {
+        newToast.remove();
+    }, 5000);
+}
+</script>
+
+<style is:global>
+#toaster {
+    position: fixed;
+    right: 1rem;
+    top: 1rem;
+    max-width: 40rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    z-index: 1000;
+    .toast {
+        background-color: rgba(255,255,255,0.8);
+        font-family: 'Inter', sans-serif;
+        color: #000;
+        border-radius: 0.5rem;
+        display: block;
+        padding: 1rem;
+        opacity: 0;
+        transition: opacity 0.2s;
+        &.fade-in {
+            opacity: 1;
+        }
+    }
+}
+
+</style>

@@ -1,0 +1,65 @@
+
+<div class="choosepalette">
+  <div>
+    <label><input type="radio" name="palette" value="A" checked />Palette A</label>
+    <label><input type="radio" name="palette" value="B" />Palette B</label>
+    <label><input type="radio" name="palette" value="C" />Palette C</label>
+    <label><input type="radio" name="palette" value="D" />Palette D</label>
+    <label><input type="radio" name="palette" value="RGB" 
+    />True Color</label>
+  </div>
+</div>
+
+
+
+<script>
+
+
+// Change the palette
+document.querySelectorAll('input[name="palette"]').forEach( (radio : Element) => {
+    // Trigger a "palette" event when the palette is changed
+    if (radio) (radio as HTMLInputElement).onchange = () => document.dispatchEvent(new Event('newpalette'));
+});
+
+
+
+// Listen for the "newsource" event. If localStorage.url ends with .tiff, then make the True Color option visible.
+document.addEventListener('newsource', () => {
+  const url = localStorage.getItem('url');
+  const isTiff = url && url.endsWith('.tif');
+  const rgbLabel = document.querySelector('label[value="RGB"]') as HTMLLabelElement;
+  if (rgbLabel) rgbLabel.style.display = isTiff ? 'initial' : 'none';
+});
+
+</script>
+
+<style>
+.choosepalette {
+    display: flex;
+    width: 100%;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+
+    div {
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        align-content: start;
+        justify-items: start;
+        justify-content: start;
+        gap: 1rem;
+        label {
+          cursor: pointer;
+          font-family: 'Inter', sans-serif;
+        }
+    }
+
+    top:0;
+    height: 100vh;
+    right: 1rem;
+    gap: 1rem;
+}
+</style>
