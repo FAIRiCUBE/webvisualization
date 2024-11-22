@@ -5,6 +5,6 @@ export default defineConfig({
     site: "https://vis.fairicube.eu",
     integrations: [solid()],
     output: "static",
-    publicDir: "static",
-    outDir: "public",
+    publicDir: "public",
+    outDir: "dist",
 })
