@@ -1,0 +1,36 @@
+
+<div class="cogurl">
+  <input type="text" placeholder="URL to any GeoTIFF"
+  data-badvalue="https://data.sustainability.nilu.no/fairicube/ua2018_mosaic_raster_10m_cog_2_3_B1.tif"
+  value="https://data.sustainability.nilu.no/fairicube/r05_treecover2018_100m_b1_COG.tif"
+  />
+  <button>View</button>
+</div>
+
+<script>
+document.querySelector('.cogurl button')?.addEventListener('click', viewCOG);
+function viewCOG() {
+  //@ts-ignore
+  const cogurl = document.querySelector('.cogurl input')?.value;
+  if (!cogurl) return;
+  localStorage.setItem('url', cogurl);
+  document.dispatchEvent(new Event('newsource'));
+
+}
+</script>
+
+<style>
+.cogurl {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  width: 100vw;
+  bottom: 10px;
+  right: 0px;
+  margin:0;
+  border-radius: 10px;
+  padding: 5px;
+  gap: 10px;
+}
+</style>

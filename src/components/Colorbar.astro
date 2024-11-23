@@ -1,21 +1,36 @@
 <div id="colorbar"></div>
 
 <script>
-
+import { getPaletteAsGradient } from '../scripts/palette';
+import * as d3 from 'd3';
 // Listen for the changes to palette or source
 document.addEventListener('newpalette', updateColorbar);
 document.addEventListener('newsource', updateColorbar);
 
 
 function updateColorbar() {
-  console.log('newpalette - updating colorbar');
+  console.log('updateColorbar');
 
-  const el = document.getElementById('colorbar');
-  if (!el) return;
+  const colorbar = document.getElementById('colorbar');
+  if (!colorbar) return;
 
-  const palette = localStorage.getItem('palette');
+  const palette = localStorage.getItem('palette') || 'd3.interpolateBlues';
+  colorbar.style.display = (palette=='rgb') ? 'none' : 'flex';
 
-  el.style.display = (palette=='rgb') ? 'none' : 'block';
+  const min : number = parseFloat(localStorage.getItem('min') ?? '0');
+  const max : number = parseFloat(localStorage.getItem('max') ?? '1');
+  const nmiddletics = (min==0 && max==1) ? 0 : 3;
+  // Get Ntics evenly spaced between min and max
+  const middltics = d3.range(min, max, (max-min)/(nmiddletics-1));
+  const labels = [...middltics.map(t => t.toFixed(0)), max.toFixed(0)];
+  colorbar.innerHTML = '';
+  for (let i = 0; i < labels.length; i++){
+      let div = document.createElement('div');
+      div.innerHTML = labels[i]; // Value
+      colorbar.appendChild(div);
+  }
+
+  colorbar.style.background = getPaletteAsGradient();
 
 }
 

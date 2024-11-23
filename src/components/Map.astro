@@ -36,15 +36,15 @@ const googleview = new ol.View({
   //center: [10,55.2],zoom:6 // Copenhagen
   //center:[-77.1778,26.4858], zoom: 8 // Virgin Gorda
 });
-/*googleview.setCenter( fromLonLat([-77.1778,26.4858], googleview.getProjection())); googleview.setZoom(8);  // Virgin Gorda
+googleview.setCenter( fromLonLat([-77.1778,26.4858], googleview.getProjection())); googleview.setZoom(8);  // Virgin Gorda
 googleview.setCenter( fromLonLat([-10,55.2], googleview.getProjection())); googleview.setZoom(6);  // Copenhagen
 googleview.setCenter( fromLonLat([16.2,48.2], googleview.getProjection())); googleview.setZoom(10);  // Vienna
-*/
+
 
 const map = new ol.Map({
       target: 'map',
-      layers: [baselayer]//,
-      //view: googleview //source.getView()
+      layers: [baselayer],
+      view: googleview //source.getView()
     });
 
 
@@ -69,7 +69,7 @@ async function buildMapForGeotiff() {
   window.newToast(`Loading ${url}`);
 
   //If url does not start with "http"then add the curent location base url (server url)
-  if (!url.startsWith("http")) url = window.location.origin + url;
+  if (!url.startsWith("http")) url = window.location.origin + (url.startsWith('/') ? '' : '/') + url;
 
   // If URL does not end with .tif, then return
   if (!url.endsWith('.tif')) {
@@ -83,13 +83,20 @@ async function buildMapForGeotiff() {
 
   const geotiffSource : any = {url};
 
+  localStorage.setItem('min', '0');
+  localStorage.setItem('max', '1');
+
   // Try to fetch and parse an {url}.aux.xml file. The file is an XML file with metadata about the GeoTIFF
-  const minmax = await getGeotiffMinmaxFromAuxXML(url);
-  if (minmax) {
-    geotiffSource.min = minmax[0];
-    geotiffSource.max = minmax[1];
-    console.log(`Used .tif.aux.xml to find min=${geotiffSource.min}, max=${geotiffSource.max}`);
-  }
+  getGeotiffMinmaxFromAuxXML(url).then(minmax => {
+    if (minmax) {
+      geotiffSource.min = minmax[0];
+      geotiffSource.max = minmax[1];
+      localStorage.setItem('min', geotiffSource.min.toString());
+      localStorage.setItem('max', geotiffSource.max.toString());
+      document.dispatchEvent(new Event('newpalette'));
+      window.newToast(`.tif.aux.xml says min=${geotiffSource.min}, max=${geotiffSource.max}`);
+    }
+  });
 
 
   // Create the source and layer
@@ -107,11 +114,11 @@ async function buildMapForGeotiff() {
   source.on('tileloadend', (event) => {
 
     if (flag_styleIsSet) return; // If the style has already been set, do nothing
+    flag_styleIsSet = true; // Set the flag
 
-    window.newToast({title: 'Info', message: `Got image with ${event.target.bandCount} bands`});
+    window.newToast(`Got image with ${event.target.bandCount} bands`);
     if (layer) (layer as TileLayer).setStyle(getInterpolateBand1AsColor()); // Set the style
 
-    flag_styleIsSet = true; // Set the flag
   });
 
 
@@ -119,31 +126,43 @@ async function buildMapForGeotiff() {
   map.setLayers([baselayer,layer]);
   map.render();
 
-/*
-  const vo = await source.getView();
-  if (!vo.projection) {
-    console.log(`File  ${url} contains insufficient metadata about its projection`);
-    //return;
-  }
 
-  const proj = getProjection(vo.projection?.getCode());
-  if (!proj) {
-    // Look up at epsg.io
-    vo.projection= await fromEPSGCode(vo.projection?.getCode());
-    console.log(`Downloading projection ${vo.projection.getCode()} used by ${url}`);
-    //return;
-  }
+  source.getView().then(async (vo) => {
+    if (!vo.projection) {
+      window.newToast(`File  ${url} contains insufficient metadata about its projection`);
+        console.log(`File  ${url} contains insufficient metadata about its projection`);
+      //return;
+    }
 
-  // Reproject the extent to the map's projection
-  const extent = transformExtent(vo.extent, vo.projection, googleview.getProjection());
-  map.getView().fit(extent);
-*/
+    const proj = getProjection(vo.projection?.getCode());
+    if (!proj) {
+      // Look up at epsg.io
+      vo.projection= await fromEPSGCode(vo.projection?.getCode());
+      console.log(`Downloading projection ${vo.projection.getCode()} used by ${url}`);
+      //return;
+    }
+
+    // Reproject the extent to the map's projection
+      const extent = transformExtent(vo.extent, vo.projection, googleview.getProjection());
+      map.getView().fit(extent);
+  }); // end of source.getView().then
+
+
 
 }; // function buildMapforGeotiff
 
 
 
 
+// Add a listener for the "newpalette" event
+document.addEventListener('newpalette', updateGeotiffColors);
+function updateGeotiffColors(){
+  if (!layer) {
+    console.error('No layer to update colors for');
+    return;
+  }
+  (layer as TileLayer).setStyle(getInterpolateBand1AsColor()); // Set the style
+}
 
 
 
@@ -154,10 +173,8 @@ async function buildMapForSTACItem() {
 let stac_json = localStorage.getItem('stac');
 
 
-if (!stac_json) {
-  console.error(`No STAC JSON in localStorage`);
-  return;
-}
+if (!stac_json) return buildMapForGeotiff();
+
 
 const layer = new STAC({url: stac_json});
 

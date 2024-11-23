@@ -1,12 +1,12 @@
 
 <div class="choosepalette">
   <div>
-    <label><input type="radio" name="palette" value="A" checked />Palette A</label>
-    <label><input type="radio" name="palette" value="B" />Palette B</label>
-    <label><input type="radio" name="palette" value="C" />Palette C</label>
-    <label><input type="radio" name="palette" value="D" />Palette D</label>
-    <label><input type="radio" name="palette" value="RGB" 
-    />True Color</label>
+    <label><input type="radio" name="palette" value="d3.interpolateViridis" checked />Viridis</label>
+    <label><input type="radio" name="palette" value="d3.interpolateTurbo" />Turbo</label>
+    <label><input type="radio" name="palette" value="d3.interpolateBlues" />Blues</label>
+    <label><input type="radio" name="palette" value="d3.interpolateGnBu" />GnBu</label>
+    <label><input type="radio" name="palette" value="rgb"/>True Color</label>
+    <label class="invertpalette"><input type="checkbox" name="invertpalette"/>Invert</label>
   </div>
 </div>
 
@@ -14,11 +14,26 @@
 
 <script>
 
+// Add click handlers for the invert checkbox. Set the invert flag in localStorage.
+document.querySelector('input[name="invertpalette"]')?.addEventListener('change', (e) => {
+  localStorage.setItem('invertpalette', (e.target as HTMLInputElement).checked.toString());
+  document.dispatchEvent(new Event('newpalette'));
+});
 
-// Change the palette
+// Add an event listener for the "newpalette" event. If localStorage.palette=rgb hide the Invert checkbox
+document.addEventListener('newpalette', () => {
+  const palette = localStorage.getItem('palette');
+  const invertCheckbox = document.querySelector('label.invertpalette') as HTMLLabelElement;
+  invertCheckbox.style.opacity = palette==='rgb' ? '0' : '1';
+});
+
+// Add click handlers for the palette radio buttons
 document.querySelectorAll('input[name="palette"]').forEach( (radio : Element) => {
     // Trigger a "palette" event when the palette is changed
-    if (radio) (radio as HTMLInputElement).onchange = () => document.dispatchEvent(new Event('newpalette'));
+    (radio as HTMLInputElement).onchange = (e) => {
+      localStorage.setItem('palette', (e.target as HTMLInputElement).value);
+      document.dispatchEvent(new Event('newpalette'));
+    };
 });
 
 
@@ -42,11 +57,20 @@ document.addEventListener('newsource', () => {
     flex-direction: column;
     justify-content: center;
     align-items: flex-end;
+    pointer-events: none;
 
     div {
+        pointer-events: auto;
+        padding: 1rem;
+        opacity: 0.5;
+        transition: all 0.1s;
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.6);
+          opacity: 1;
+        }
         display: flex;
         flex-direction: column;
-        align-items: start;
+        align-items: flex-end;
         align-content: start;
         justify-items: start;
         justify-content: start;
@@ -55,6 +79,28 @@ document.addEventListener('newsource', () => {
           cursor: pointer;
           font-family: 'Inter', sans-serif;
         }
+    }
+    input{
+      display: none;
+    }
+    input[name="invertpalette"] {
+      display: initial;
+      margin-right: 0.5rem;
+    }
+    label {
+      margin-bottom: 0;
+      transition: all 0.1s ease-in-out;
+    }
+    label:has(input:disabled) {
+      opacity: 0.25;
+      pointer-events: none;
+    }
+    label:has(input[name="palette"]:checked){
+      color: var(--color-primary);
+      font-weight: 600;
+      font-size: 1.2rem;
+      margin-top: 0.2rem;
+      margin-bottom: 0.2rem;
     }
 
     top:0;
