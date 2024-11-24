@@ -5,7 +5,8 @@
     <label><input type="radio" name="palette" value="d3.interpolateTurbo" />Turbo</label>
     <label><input type="radio" name="palette" value="d3.interpolateBlues" />Blues</label>
     <label><input type="radio" name="palette" value="d3.interpolateGnBu" />GnBu</label>
-    <label><input type="radio" name="palette" value="rgb"/>True Color</label>
+    <label class="qgis"><input type="radio" name="palette" value="qgis" />QGIS</label>
+    <label class="truecolor"><input type="radio" name="palette" value="rgb"/>True Color</label>
     <label class="invertpalette"><input type="checkbox" name="invertpalette"/>Invert</label>
   </div>
 </div>
@@ -20,17 +21,35 @@ document.querySelector('input[name="invertpalette"]')?.addEventListener('change'
   document.dispatchEvent(new Event('newpalette'));
 });
 
+
 // Add an event listener for the "newpalette" event. If localStorage.palette=rgb hide the Invert checkbox
 document.addEventListener('newpalette', () => {
   const palette = localStorage.getItem('palette');
   const invertCheckbox = document.querySelector('label.invertpalette') as HTMLLabelElement;
-  invertCheckbox.style.opacity = palette==='rgb' ? '0' : '1';
+  invertCheckbox.style.opacity = (palette==='rgb'||palette==='qgis') ? '0' : '1';
+
+  const qg = localStorage.getItem('QGISColorfile') || '';
+  const qgisLabel = document.querySelector('label.qgis') as HTMLLabelElement;
+  if (qg.length>0) qgisLabel.style.opacity = '1';
+  else qgisLabel.style.opacity = '0';
+
+  // Ensure the correct radio button is checked
+  const paletteRadio = document.querySelector(`input[name="palette"][value="${palette}"]`) as HTMLInputElement;
+  if (paletteRadio) paletteRadio.checked = true;
+});
+
+// Add an event listener for the "newbandcount" event. Show the True Color option if bandcount>1
+document.addEventListener('newbandcount', () => {
+  const bandcount = localStorage.getItem('bandcount') ?? '1';
+  const rgbLabel = document.querySelector('.choosepalette .truecolor') as HTMLLabelElement;
+  if (rgbLabel) rgbLabel.style.display = bandcount==='1' ? 'none' : 'initial';
 });
 
 // Add click handlers for the palette radio buttons
 document.querySelectorAll('input[name="palette"]').forEach( (radio : Element) => {
     // Trigger a "palette" event when the palette is changed
     (radio as HTMLInputElement).onchange = (e) => {
+      console.log('palette changed to', (e.target as HTMLInputElement).value);
       localStorage.setItem('palette', (e.target as HTMLInputElement).value);
       document.dispatchEvent(new Event('newpalette'));
     };
@@ -44,6 +63,17 @@ document.addEventListener('newsource', () => {
   const isTiff = url && url.endsWith('.tif');
   const rgbLabel = document.querySelector('label[value="RGB"]') as HTMLLabelElement;
   if (rgbLabel) rgbLabel.style.display = isTiff ? 'initial' : 'none';
+});
+
+
+// On page load, if localStorage.palette is set check the radio button
+document.addEventListener('DOMContentLoaded', () => {
+  
+  const palette = localStorage.getItem('palette');
+  if (!palette) return;
+  const radio = document.querySelector(`input[name="palette"][value="${palette}"]`);
+  if (!radio) return;
+  (radio as HTMLInputElement).checked = true;
 });
 
 </script>
@@ -61,6 +91,7 @@ document.addEventListener('newsource', () => {
 
     div {
         pointer-events: auto;
+
         padding: 1rem;
         opacity: 0.5;
         transition: all 0.1s;
@@ -77,7 +108,9 @@ document.addEventListener('newsource', () => {
         gap: 1rem;
         label {
           cursor: pointer;
-          font-family: 'Inter', sans-serif;
+          * {
+            cursor: pointer;
+          }
         }
     }
     input{

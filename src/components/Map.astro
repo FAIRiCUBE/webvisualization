@@ -6,6 +6,10 @@
 import 'ol/ol.css';
 import * as ol from 'ol';
 import TileLayer from 'ol/layer/WebGLTile';
+import Map from 'ol/Map.js';
+import Source from 'ol/source/ImageTile.js';
+import View from 'ol/View.js';
+
 import {getGeotiffMinmaxFromAuxXML} from '../scripts/getGeotiffMinmaxFromAuxXML.js';
 import type {Extent} from 'ol/extent';
 
@@ -17,7 +21,9 @@ import { transformExtent, Projection, get as getProjection, fromLonLat } from 'o
 import {register,fromEPSGCode} from 'ol/proj/proj4';
 import STAC from 'ol-stac';
 import proj4 from 'proj4'
-import * as d3 from 'd3';
+import {getQGISColorfile} from '../scripts/parseQGISColorfile.js';
+import {useGeographic} from 'ol/proj.js';
+
 
 let source : any = null;
 let layer : TileLayer | null = null;
@@ -26,10 +32,17 @@ let flag_styleIsSet = false; // This is used to prevent setting the style multip
 // Register EPSG:3035
 //proj4.defs("EPSG:3035","+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs");
 proj4.defs("EPSG:31256","+proj=tmerc +lat_0=0 +lon_0=16.3333333333333 +k=1 +x_0=0 +y_0=-5000000 +ellps=bessel +towgs84=551.7,162.9,467.9,6.04,1.96,-11.38,-4.82 +units=m +no_defs +type=crs");
-
 register(proj4); // Make projections defined in proj4 (with proj4.defs()) available in OpenLayers. Req
 
-const baselayer = new OldTileLayer({source:new OSM()});
+if (!localStorage.getItem('palette')) {
+  console.log('No palette set. Setting to d3.interpolateBlues');
+  localStorage.setItem('palette', 'd3.interpolateBlues');
+}
+
+//useGeographic();
+
+
+//const baselayer = new OldTileLayer({source:new OSM()});
 const googleview = new ol.View({
   projection: 'EPSG:3857',
   //center: [16.2,48.2],zoom:10 // Vienna
@@ -39,6 +52,17 @@ const googleview = new ol.View({
 googleview.setCenter( fromLonLat([-77.1778,26.4858], googleview.getProjection())); googleview.setZoom(8);  // Virgin Gorda
 googleview.setCenter( fromLonLat([-10,55.2], googleview.getProjection())); googleview.setZoom(6);  // Copenhagen
 googleview.setCenter( fromLonLat([16.2,48.2], googleview.getProjection())); googleview.setZoom(10);  // Vienna
+
+const baselayer = new TileLayer({
+      source: new Source({
+        attributions:
+          'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/' +
+          'rest/services/World_Topo_Map/MapServer">ArcGIS</a>',
+        url:
+          'https://server.arcgisonline.com/ArcGIS/rest/services/' +
+          'World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+      })
+    });
 
 
 const map = new ol.Map({
@@ -98,17 +122,24 @@ async function buildMapForGeotiff() {
     }
   });
 
+  getQGISColorfile();
 
   // Create the source and layer
 
-  source = new GeoTIFF({sources: [geotiffSource], normalize: true});
+  source = new GeoTIFF({sources: [geotiffSource], normalize: false});
   layer = new TileLayer({source});
 
 
   // Set timeout for 5 seconds. If flag_styleIsSet false at that time, print a warning to console that we haven't loaded any tiles.
   setTimeout(() => {
-    if (!flag_styleIsSet) window.newToast({title: 'Error', message: `After 5s, no tiles have been loaded...`});
+
+    if (!flag_styleIsSet) {
+      window.newToast({ok:false, message: `Could nor load dataset.`});
+    }
   }, 5000);
+
+  localStorage.setItem('bandcount', '1');
+  document.dispatchEvent(new Event('newbandcount'));
 
   // Callback on tile load. This is used to set the style
   source.on('tileloadend', (event) => {
@@ -116,7 +147,10 @@ async function buildMapForGeotiff() {
     if (flag_styleIsSet) return; // If the style has already been set, do nothing
     flag_styleIsSet = true; // Set the flag
 
-    window.newToast(`Got image with ${event.target.bandCount} bands`);
+    //window.newToast(`Got image with ${event.target.bandCount} bands`);
+    localStorage.setItem('bandcount', event.target.bandCount.toString());
+    document.dispatchEvent(new Event('newbandcount'));
+
     if (layer) (layer as TileLayer).setStyle(getInterpolateBand1AsColor()); // Set the style
 
   });
@@ -155,78 +189,13 @@ async function buildMapForGeotiff() {
 
 
 // Add a listener for the "newpalette" event
-document.addEventListener('newpalette', updateGeotiffColors);
-function updateGeotiffColors(){
-  if (!layer) {
-    console.error('No layer to update colors for');
-    return;
-  }
+document.addEventListener('newpalette', () => {
+  if (!layer) return;
   (layer as TileLayer).setStyle(getInterpolateBand1AsColor()); // Set the style
-}
-
-
-
-
-async function buildMapForSTACItem() {
-
-// Which STAC item to load?
-let stac_json = localStorage.getItem('stac');
-
-
-if (!stac_json) return buildMapForGeotiff();
-
-
-const layer = new STAC({url: stac_json});
-
-
-// Try to fetch and parse an {url}.aux.xml file. The file is an XML file with metadata about the GeoTIFF
-/*const minmax = await getGeotiffMinmaxFromAuxXML(url);
-if (minmax) {
-  geotiffSource.min = minmax[0];
-  geotiffSource.max = minmax[1];
-  console.log(`Used .tif.aux.xml to find min=${geotiffSource.min}, max=${geotiffSource.max}`);
-}
-*/
-
-
-
-layer.on('sourceready', () => {
-  const view = map.getView();
-  view.fit(layer.getExtent() as Extent);
-
-});
-
-layer.on('assetsready', () => {
-  // Assign titles for e.g. a layerswitcher
-  for (const sublayer of layer.getLayersArray()) {
-    const stac = sublayer.get('stac');
-    let title;
-    if (stac.isAsset() || stac.isLink()) {
-      title = stac.getMetadata('title') || stac.getKey();
-    } else {
-
-      const firstDataAsset = stac.getAssets().find(d=>d.roles.includes("data"));
-      if (firstDataAsset) {
-        localStorage.setItem('url', firstDataAsset.href);
-        buildMapForGeotiff();
-      } else {
-        console.error(`No asset with role "data" found in ${stac_json}`);
-      }
-
-    }
-
-    sublayer.set('title', title);
-  }
 });
 
 
 
-// Create the map
-map.setLayers([baselayer,layer]);
-map.render();
-
-
-}; // function buildMapForSTACItem
 
 
 
@@ -235,11 +204,10 @@ map.render();
 
 
 
-
-buildMapForSTACItem(); // Execute this on page load
+buildMapForGeotiff(); // Execute this on page load
 
 // Add a listener for the "newsource" event
-document.addEventListener('newsource', buildMapForSTACItem);
+document.addEventListener('newsource', buildMapForGeotiff);
 
 
 

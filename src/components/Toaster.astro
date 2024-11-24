@@ -3,7 +3,7 @@
 <script is:inline>
 window.newToast = ( message) => {
 
-    const msgObj = typeof message === 'string' ? {message} : message;
+    const msgObj = typeof message === 'string' ? {message, ok:true} : message;
 
     const toaster = document.getElementById('toaster');
     if (!toaster) {
@@ -13,6 +13,7 @@ window.newToast = ( message) => {
     const newToast = document.createElement('div');
     newToast.classList.add('toast');
     newToast.classList.add('fade-in');
+    if (!msgObj.ok) newToast.classList.add('error');
     newToast.innerHTML = msgObj.message;
     toaster.appendChild(newToast);
 
@@ -50,6 +51,10 @@ window.newToast = ( message) => {
         transition: opacity 0.2s;
         &.fade-in {
             opacity: 1;
+        }
+        &.error {
+            color: var(--nilu-bright-accent);
+            box-shadow: 5px 5px 10px 0 var(--nilu-bright-accent);
         }
     }
 }

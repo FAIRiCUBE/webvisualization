@@ -7,12 +7,18 @@
     --nilu-bright-accent: rgb(233, 60, 172);
     --nilu-gray: rgb(176, 184, 194);
     --nilu-dark-gray: rgba(6, 58, 75, 0.715);
-    --iconSize: 1.5rem;
   }
+
+html {
+  font-family: 'Inter', 'System-ui', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+}
   
 .stactreeview {
-    background-color: var(--nilu-light-blue);
-    
+    background-color: color-mix(in srgb, var(--nilu-light-blue), 30% transparent);
+    transition: background-color 0.1s;
+    &:hover {
+      background-color: var(--nilu-light-blue);
+    }
     max-height: 80vh;
     width: 20vw;
     padding: 1rem;
@@ -31,10 +37,6 @@
         margin: 0;
         a.stacitemasset {
           color: var(--nilu-dark-blue);
-          &::before {
-            content: 'Data Asset:';
-            margin-right: 0.5rem;
-          }
           margin-left: 1rem;
         }
       }

@@ -1,6 +1,6 @@
 // import d3 scalechromatic
 import * as d3 from 'd3';
-
+import QGISColorfileAsd3ColrFn from './parseQGISColorfile';
 
 
 export function getInterpolateBand1AsColor() {
@@ -13,30 +13,24 @@ export function getInterpolateBand1AsColor() {
 
   let color = getPaletteAsFunction();
   // If inverted, change the color function domain to 1,0
-  if (localStorage.getItem('invertpalette')==='true') color.domain([1,0]);
+  if (pal!='qgis' && (localStorage.getItem('invertpalette')==='true')) color.domain([1,0]);
 
+  console.assert(color, 'color is null');
+
+  let values = Array.from({length: 10}, (_, i) => i/10);
+  if (pal=='qgis') values = JSON.parse(localStorage.getItem('QGISColorfileValues'));
 
   const clr_arr = [
     'interpolate',
     ['linear'],
-    ['band', 1],
-    0,
-    [255,0,0,0],
-    0.001,
-    color(0.001),
-    0.1,
-    color(0.1),
-    0.1,
-    color(0.1),
-    0.2,
-    color(0.2),
-    0.4,
-    color(0.4),
-    0.6,
-    color(0.6),
-    1,
-    color(1)
-  ];
+    ['band', 1]];
+  
+  for (const val of values) {
+    const clr = color(val);
+    console.assert(clr, `Error creating palette: colorFn(${val}) = ${clr}`);
+    clr_arr.push(val, clr);
+  }
+
   return {color: clr_arr};
     
 }
@@ -45,54 +39,52 @@ export function getInterpolateBand1AsColor() {
 export function getPaletteAsGradient() {
 
   const color = getPaletteAsFunction();
+  const pal = localStorage.getItem('palette');
   if (!color) return 'red';
   const gradient = [];
-  for(let i=0; i<1; i+=0.1) {
-    const c = color(i);
-    gradient.push(c);
+
+  let stops = Array.from({length: 10}, (_, i) => i/10);
+  let stopsPct = stops.map(v => `${v*100}%`);
+  if (pal=='qgis') {
+    stops = JSON.parse(localStorage.getItem('QGISColorfileValues'));
+    // Normalize stops to percentage
+    const min = stops[0];
+    const max = stops[stops.length-1];
+    stopsPct = stops.map(v => `${((v-min)/(max-min)*100).toFixed(2)}%`);
   }
-  const invert = localStorage.getItem('invertpalette')==='true';
+
+  for(const [i, stop] of stops.entries()) {
+    const c = color(stop);
+    gradient.push(`${c} ${stopsPct[i]}`);
+  }
+  let invert = localStorage.getItem('invertpalette')==='true';
+  if (pal=='qgis') invert = false;
+  if (pal=='rgb') invert = false;
   if (invert) gradient.reverse();
+
   return `linear-gradient(to right, ${gradient.join(',')})`;
 }
 
-// Given a MapLibre color interpolation array like [value, color, value, color, ...], create a
-// colorbar elelement with a CSS background gradient 
-// that matches the color ramp
-function interpolation_to_colorbar(interp){
-  const colorbar = document.getElementById('colorbar');
-  colorbar.innerHTML = '';
-  for (let i = 0; i < interp.length; i+=2){
-      let div = document.createElement('div');
-      div.innerHTML = interp[i]; // Value
-      colorbar.appendChild(div);
-  }
-  const maxValue = interp[interp.length-2];
-  let gradient = '';
-  for (let i = 0; i < interp.length; i+=2){
-      const value = interp[i];
-      const percent = (value/maxValue)*100;
-      let clr = interp[i+1];
-      // If the color is an array, convert it to a string
-      if (Array.isArray(clr)) clr = `rgba(${clr.join(',')})`;
-      gradient += clr + ' ' + percent + '%, ';
-  }
-  gradient = gradient.slice(0, -2);
-  colorbar.style.background = 'linear-gradient(to right, ' + gradient + ')';
-
-}
 
 
 
 
 
 
+/**
+ * Returns a color function over the domain [0,1]
+ * If palette is rgb, returns null
+ * If palette is qgis, the domain is not [0,1] but the value range in the QGISColorfile
+ * 
+ * @returns 
+ */
 export function getPaletteAsFunction() {
 
   const palette = localStorage.getItem('palette') || 'd3.interpolateBlues';
   if (palette=='rgb') return null;
-  const paletteFunction = eval(palette);
+  if (palette=='qgis') return QGISColorfileAsd3ColrFn();
 
+  const paletteFunction = eval(palette);
   const invert = localStorage.getItem('invertpalette');
 
   /*let min = localStorage.getItem('min') ?? 0;

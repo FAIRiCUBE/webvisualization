@@ -73,8 +73,9 @@ async function getItems(collection: Collection): Promise<Items>{
         //@ts-ignore
         item.assets = Object.entries(item.assets).map(([key, val]) => ({...val, id: key}));
 
-        // Remove assets that do not contain "data" or "thumbnail" in the .roles array
-        item.assets = item.assets.filter((asset: any) => asset.roles.includes("data") || asset.roles.includes("thumbnail"));
+        // Remove assets that do not contain "data" or "overview" in the .roles array
+        item.assets = item.assets.filter((asset: any) => asset.roles.includes("data") || asset.roles.includes("overview"));
+        //item.assets = item.assets.filter((asset: any) => asset.roles.includes("data"));
 
         // Remove assets that do not have a .href
         item.assets = item.assets.filter((asset: any) => asset.href);

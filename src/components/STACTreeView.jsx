@@ -29,10 +29,12 @@ export default function STACTreeView(props) {
 
 function ViewCollection({collection}) {
 
+    // This should (but doesn't) show the whole collection as outlines in the map.
+    // <button onClick={() => showWholeCollection(collection.links.filter(link => link.rel == "self")[0].href)}>Show whole collection</button>
+
+    if (collection.items.length===0) return null;
 
     return <div>{collection.title}:
-
-    <button onClick={() => showWholeCollection(collection.links.filter(link => link.rel == "self")[0].href)}>Show whole collection</button>
 
     <ul>
         <For each={collection.items}>
@@ -41,13 +43,14 @@ function ViewCollection({collection}) {
                 const selfLink = item.links.find(link => link.rel == "self");
                 const href = selfLink ? selfLink.href : null;
 
-                const handleClickOnSTACItem = (e) => {
+                /*const handleClickOnSTACItem = (e) => {
                     e.preventDefault();
                     localStorage.setItem('stac', e.target.href);
                     document.dispatchEvent(new Event('newsource'));
-                }
+                }*/
 
-                return <li><a href={href} onClick={handleClickOnSTACItem}>{item.id}</a>
+                //return <li><a href={href} onClick={handleClickOnSTACItem}>{item.id}</a>
+                return <li>{item.id}
                 <For each={Object.entries(item.assets)}>
                     {(entry) => <STACItem entry={entry} />}
                 </For>
@@ -63,12 +66,13 @@ function STACItem({entry}) {
 
     const [key, val] = entry;
 
+    /*
     // If val.rolesdoes not contain "data", skip
-    if (!val.roles.includes("data")) {
+    if (!(val.roles.includes("data") || val.roles.includes("overview"))) {
         return null;
-        return <>No asset with "data" role (only {val.roles.join(", ")})</>
+        return <>No asset with "data" or "overview" role (only {val.roles.join(", ")})</>
     }
-
+*/
 
     const urlInput = document.getElementById('url-input');
     if (urlInput) urlInput.onchange = () => document.dispatchEvent(new Event('newsource'));

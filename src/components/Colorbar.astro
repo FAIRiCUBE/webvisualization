@@ -9,21 +9,32 @@ document.addEventListener('newsource', updateColorbar);
 
 
 function updateColorbar() {
-  console.log('updateColorbar');
 
   const colorbar = document.getElementById('colorbar');
   if (!colorbar) return;
 
-  const palette = localStorage.getItem('palette') || 'd3.interpolateBlues';
+  colorbar.innerHTML = '';
+
+  const palette = localStorage.getItem('palette');
   colorbar.style.display = (palette=='rgb') ? 'none' : 'flex';
+
+  if (palette=='qgis') {
+    const values = JSON.parse(localStorage.getItem('QGISColorfileValues') || '[]');
+    for (const value of values){
+      const div = document.createElement('div');
+      div.innerHTML = value.toFixed(2);
+      colorbar.appendChild(div);
+    }
+    colorbar.style.background = getPaletteAsGradient();
+    return;
+  }
 
   const min : number = parseFloat(localStorage.getItem('min') ?? '0');
   const max : number = parseFloat(localStorage.getItem('max') ?? '1');
   const nmiddletics = (min==0 && max==1) ? 0 : 3;
   // Get Ntics evenly spaced between min and max
   const middltics = d3.range(min, max, (max-min)/(nmiddletics-1));
-  const labels = [...middltics.map(t => t.toFixed(0)), max.toFixed(0)];
-  colorbar.innerHTML = '';
+  const labels = [...middltics.map(t => t.toFixed(3)), max.toFixed(3)];
   for (let i = 0; i < labels.length; i++){
       let div = document.createElement('div');
       div.innerHTML = labels[i]; // Value
@@ -45,11 +56,11 @@ function updateColorbar() {
   position: absolute;
   bottom: 50px;
   right: 50px;
-  width: 200px;
+  width: 400px;
   height: 5px;
-  background: none;
+  background: red;
   border-radius: 5px;
-  background-color: none;
+  background-color: red;
   backdrop-filter: blur(5px);
   padding: 10px;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -61,8 +72,9 @@ function updateColorbar() {
   justify-content: space-between;
   align-items: center;
   div {
-    mix-blend-mode: plus-lighter;
-    color: white;
+    mix-blend-mode: difference;
+    font-size: 1em;
+    color: whit;
   }
 }
 </style>
