@@ -93,6 +93,7 @@ export function getPaletteAsFunction() {
     case 'd3.interpolatePurples': paletteFunction = d3.interpolatePurples; break;
     case 'd3.interpolateOranges': paletteFunction = d3.interpolateOranges; break;
     case 'd3.interpolateGreys': paletteFunction = d3.interpolateGreys; break;
+    case 'd3.interpolateGnBu': paletteFunction = d3.interpolateGnBu; break;
     case 'd3.interpolateRdYlBu': paletteFunction = d3.interpolateRdYlBu; break;
     case 'd3.interpolateRdYlGn': paletteFunction = d3.interpolateRdYlGn; break;
     case 'd3.interpolateRdYlBu': paletteFunction = d3.interpolateRdYlBu; break;
@@ -104,6 +105,11 @@ export function getPaletteAsFunction() {
     case 'd3.interpolateInferno': paletteFunction = d3.interpolateInferno; break;
     case 'd3.interpolateMagma': paletteFunction = d3.interpolateMagma; break;
     case 'd3.interpolatePlasma': paletteFunction = d3.interpolatePlasma; break;
+    case 'd3.interpolateCividis': paletteFunction = d3.interpolateCividis; break;
+    case 'd3.interpolateWarm': paletteFunction = d3.interpolateWarm; break;
+    case 'd3.interpolateCool': paletteFunction = d3.interpolateCool; break;
+    case 'd3.interpolateRainbow': paletteFunction = d3.interpolateRainbow; break;
+    case 'd3.interpolateSinebow': paletteFunction = d3.interpolateSinebow; break;
     default: console.error(`Unknown palette: ${palette}`);
   }
   // = eval(palette);
