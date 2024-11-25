@@ -19,15 +19,33 @@ html {
   100% { transform: translateX(0); }
 }
 
-.stactreeview {
+details.stactreeview {
     /*background-color: color-mix(in srgb, var(--nilu-light-blue), 30% transparent);*/
     background-color: transparent;
     transition: background-color 0.1s;
-    summary {
+    max-height: 80dvh;
+    width: max(20vw, 14rem);
+    overflow: auto;
+    position: absolute;
+    top: 0;
+    left: 0;
 
+    padding: 0 1rem;
+
+    summary {
+      list-style: none;
+      padding: 0;
+      &::marker {
+        display: none;
+      }
+      &::-webkit-details-marker {
+        display: none;
+      }
       .staclogo {
-          width: 50px;
-          height: 50px;
+          width: 9rem;
+          height: 6rem;
+          margin-top: 1rem;
+          margin-bottom: 1rem;
           cursor: pointer;
           display: inline-block;
           background-image: url('/fairicube_logo_400x297.jpg');
@@ -50,13 +68,7 @@ html {
       max-height: 100dvh;
       height:100dvh;
     }
-    max-height: 80dvh;
-    width: max(20vw, 14rem);
-    padding: 1rem;
-    overflow: auto;
-    position: absolute;
-    top: 0;
-    left: 0;
+
 
     ul {
       list-style-type: none;

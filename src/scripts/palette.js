@@ -17,7 +17,7 @@ export function getInterpolateBand1AsColor() {
   console.assert(color, 'color is null');
 
 
-  const {stops, stopsPct} = getColorStops();
+  const {stops} = getColorStops();
 
   const clr_arr = [
     'interpolate',
@@ -61,7 +61,7 @@ export function getPaletteAsGradient() {
  * and their percentage values.
  * If the palette is QGIS, the stops are taken from the QGISColorfileValues
  */
-function getColorStops(){
+export function getColorStops(){
 
   const pal = localStorage.getItem('palette') || 'd3.interpolateBlues';
 
@@ -89,6 +89,39 @@ function getColorStops(){
 
   return {stops, stopsPct};
 } // getColorStops
+
+
+
+/**
+ * Returns 4 regularly-spaced values in the domain of the data values
+ * and their percentage values.
+ * This is suitable for showing on a colorbar UI element.
+ * If the palette is QGIS, the stops are taken from the QGISColorfileValues
+ */
+export function getColorStopsShort(){
+
+  const pal = localStorage.getItem('palette') || 'd3.interpolateBlues';
+
+  // Stops are 4 regularly-spaced values in the domain of the data values
+  const min = parseFloat(localStorage.getItem('min')||'0');
+  const max = parseFloat(localStorage.getItem('max')||'1');
+
+  let stops = [];
+  for (let i=0; i<=3; i++) stops.push(min + i*(max-min)/3);
+
+
+  // The QGIS Color file may define color stops at irregular intervals
+  // So we must override the regular stops.
+  // Here we read these QGIS stop values and normalize them to percentage
+  if (pal=='qgis') {
+    stops = JSON.parse(localStorage.getItem('QGISColorfileValues'));
+    const nstops = stops.length;
+    // Normalize stops to percentage
+    stops = [stops[0], stops[Math.floor(nstops*.3)], stops[Math.ceil(nstops*.6)], stops[nstops-1]];
+  }
+
+  return {stops};
+} // getColorStopsShort
 
 
 
