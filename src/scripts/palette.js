@@ -1,5 +1,6 @@
 // import d3 scalechromatic
 import * as d3 from 'd3';
+
 import QGISColorfileAsd3ColrFn from './parseQGISColorfile';
 
 
@@ -84,7 +85,28 @@ export function getPaletteAsFunction() {
   if (palette=='rgb') return null;
   if (palette=='qgis') return QGISColorfileAsd3ColrFn();
 
-  const paletteFunction = eval(palette);
+  let paletteFunction = d3.interpolateBlues;
+  switch (palette) {
+    case 'd3.interpolateBlues': paletteFunction = d3.interpolateBlues; break;
+    case 'd3.interpolateReds': paletteFunction = d3.interpolateReds; break;
+    case 'd3.interpolateGreens': paletteFunction = d3.interpolateGreens; break;
+    case 'd3.interpolatePurples': paletteFunction = d3.interpolatePurples; break;
+    case 'd3.interpolateOranges': paletteFunction = d3.interpolateOranges; break;
+    case 'd3.interpolateGreys': paletteFunction = d3.interpolateGreys; break;
+    case 'd3.interpolateRdYlBu': paletteFunction = d3.interpolateRdYlBu; break;
+    case 'd3.interpolateRdYlGn': paletteFunction = d3.interpolateRdYlGn; break;
+    case 'd3.interpolateRdYlBu': paletteFunction = d3.interpolateRdYlBu; break;
+    case 'd3.interpolateRdYlGn': paletteFunction = d3.interpolateRdYlGn; break;
+    case 'd3.interpolateRdYlBu': paletteFunction = d3.interpolateRdYlBu; break;
+    case 'd3.interpolateRdYlGn': paletteFunction = d3.interpolateRdYlGn; break;
+    case 'd3.interpolateTurbo': paletteFunction = d3.interpolateTurbo; break;
+    case 'd3.interpolateViridis': paletteFunction = d3.interpolateViridis; break;
+    case 'd3.interpolateInferno': paletteFunction = d3.interpolateInferno; break;
+    case 'd3.interpolateMagma': paletteFunction = d3.interpolateMagma; break;
+    case 'd3.interpolatePlasma': paletteFunction = d3.interpolatePlasma; break;
+    default: console.error(`Unknown palette: ${palette}`);
+  }
+  // = eval(palette);
   const invert = localStorage.getItem('invertpalette');
 
   /*let min = localStorage.getItem('min') ?? 0;
