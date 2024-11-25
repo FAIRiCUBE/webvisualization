@@ -2,32 +2,29 @@
 
 <div id="map"></div>
 
+
+
 <script>
 import 'ol/ol.css';
 import * as ol from 'ol';
 import TileLayer from 'ol/layer/WebGLTile';
-import Map from 'ol/Map.js';
 import Source from 'ol/source/ImageTile.js';
-import View from 'ol/View.js';
 
 import {getGeotiffMinmaxFromAuxXML} from '../scripts/getGeotiffMinmaxFromAuxXML.js';
-import type {Extent} from 'ol/extent';
-
 import OldTileLayer from 'ol/layer/Tile';
-import GeoTIFF from 'ol/source/GeoTIFF';
 import OSM from 'ol/source/OSM';
+import GeoTIFF from 'ol/source/GeoTIFF';
 import { getInterpolateBand1AsColor } from '../scripts/palette.js';
 import { transformExtent, Projection, get as getProjection, fromLonLat } from 'ol/proj';
 import {register,fromEPSGCode} from 'ol/proj/proj4';
-import STAC from 'ol-stac';
 import proj4 from 'proj4'
 import {getQGISColorfile} from '../scripts/parseQGISColorfile.js';
-import {useGeographic} from 'ol/proj.js';
 
 
 let source : any = null;
 let layer : TileLayer | null = null;
 let flag_styleIsSet = false; // This is used to prevent setting the style multiple times
+
 
 // Register EPSG:3035
 //proj4.defs("EPSG:3035","+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs");
@@ -38,8 +35,6 @@ if (!localStorage.getItem('palette')) {
   console.log('No palette set. Setting to d3.interpolateBlues');
   localStorage.setItem('palette', 'd3.interpolateBlues');
 }
-
-//useGeographic();
 
 
 //const baselayer = new OldTileLayer({source:new OSM()});
@@ -67,9 +62,14 @@ const baselayer = new TileLayer({
 
 const map = new ol.Map({
       target: 'map',
+      controls: [],
       layers: [baselayer],
       view: googleview //source.getView()
     });
+
+
+
+
 
 
 async function buildMapForGeotiff() {
@@ -77,18 +77,11 @@ async function buildMapForGeotiff() {
   // Which GeoTIFF to load?
   let url = localStorage.getItem('url');
 
-  //url = 'https://data.sustainability.nilu.no/ua2018_mosaic_raster_10m_cog_2_3_B1.tif';
-  //url = 'https://data.sustainability.nilu.no/ua2018_mosaic_raster_10m_cog_1_1_B1.tif';
-
-
   if (!url) {
     console.error(`No URL in localStorage`);
     return;
   }
 
-  url = url.replace('https://fairicube.s3.eu-central-1.amazonaws.com/vienna_data/100m/r04_imp/','https://data.sustainability.nilu.no/fairicube/');
-  url = url.replace('https://fairicube.s3.eu-central-1.amazonaws.com/vienna_data/100m/r05_treecover/','https://data.sustainability.nilu.no/fairicube/');
-  
   //@ts-ignore
   window.newToast(`Loading ${url}`);
 
@@ -100,6 +93,7 @@ async function buildMapForGeotiff() {
     window.newToast({title: 'Error', message: `URL ${url} does not end with .tif`});
     return;
   }
+
 
   // This style flag is used to prevent setting the style multiple times
   // When we build a fresh map we can reset this flag
@@ -118,14 +112,17 @@ async function buildMapForGeotiff() {
       localStorage.setItem('min', geotiffSource.min.toString());
       localStorage.setItem('max', geotiffSource.max.toString());
       document.dispatchEvent(new Event('newpalette'));
-      window.newToast(`.tif.aux.xml says min=${geotiffSource.min}, max=${geotiffSource.max}`);
+      console.log(`{${url} says min=${geotiffSource.min}, max=${geotiffSource.max}`);
+      //window.newToast(`.tif.aux.xml says min=${geotiffSource.min}, max=${geotiffSource.max}`);
     }
   });
 
+  // Launch an async function to try and get a QGIS colorfile for the palette
+  // This will trigger a "newpalette" event if a QGIS colorfile is found
   getQGISColorfile();
 
-  // Create the source and layer
 
+  // Create the source and layer
   source = new GeoTIFF({sources: [geotiffSource], normalize: false});
   layer = new TileLayer({source});
 
@@ -143,16 +140,12 @@ async function buildMapForGeotiff() {
 
   // Callback on tile load. This is used to set the style
   source.on('tileloadend', (event) => {
-
     if (flag_styleIsSet) return; // If the style has already been set, do nothing
     flag_styleIsSet = true; // Set the flag
-
     //window.newToast(`Got image with ${event.target.bandCount} bands`);
     localStorage.setItem('bandcount', event.target.bandCount.toString());
     document.dispatchEvent(new Event('newbandcount'));
-
     if (layer) (layer as TileLayer).setStyle(getInterpolateBand1AsColor()); // Set the style
-
   });
 
 
@@ -161,22 +154,25 @@ async function buildMapForGeotiff() {
   map.render();
 
 
-  source.getView().then(async (vo) => {
-    if (!vo.projection) {
-      window.newToast(`File  ${url} contains insufficient metadata about its projection`);
+  /*
+  Update the map to view the new data file.
+  */
+ source.getView().then(async (vo) => {
+      if (!vo.projection) {
+        window.newToast(`File  ${url} contains insufficient metadata about its projection`);
         console.log(`File  ${url} contains insufficient metadata about its projection`);
-      //return;
-    }
+        return;
+      }
 
-    const proj = getProjection(vo.projection?.getCode());
-    if (!proj) {
-      // Look up at epsg.io
-      vo.projection= await fromEPSGCode(vo.projection?.getCode());
-      console.log(`Downloading projection ${vo.projection.getCode()} used by ${url}`);
-      //return;
-    }
+      const proj = getProjection(vo.projection?.getCode());
+      if (!proj) {
+        // Look up at epsg.io
+        vo.projection= await fromEPSGCode(vo.projection?.getCode());
+        console.log(`Downloading projection ${vo.projection.getCode()} used by ${url}`);
+        //return;
+      }
 
-    // Reproject the extent to the map's projection
+      // Reproject the extent to the map's projection
       const extent = transformExtent(vo.extent, vo.projection, googleview.getProjection());
       map.getView().fit(extent);
   }); // end of source.getView().then
@@ -188,10 +184,30 @@ async function buildMapForGeotiff() {
 
 
 
-// Add a listener for the "newpalette" event
+// On the "newpalette" event, set the styling for the raster layer
 document.addEventListener('newpalette', () => {
   if (!layer) return;
   (layer as TileLayer).setStyle(getInterpolateBand1AsColor()); // Set the style
+});
+
+
+// On the "newsource" event, rebuild the map
+document.addEventListener('newsource', buildMapForGeotiff);
+
+// On the "newopacity" event, set the opacity
+document.addEventListener('newopacity', () => {
+  console.log('newopacity event received');
+  if (!layer) return;
+  (layer as TileLayer).setOpacity(parseFloat(localStorage.getItem('opacity') || '1'));
+});
+
+
+// On page load, build the map
+document.addEventListener('DOMContentLoaded', () => {
+  // Get a URL from the "data" query parameter
+  const url = new URLSearchParams(window.location.search).get('data');
+  if (url) localStorage.setItem('url', url);
+  buildMapForGeotiff();
 });
 
 
@@ -199,23 +215,11 @@ document.addEventListener('newpalette', () => {
 
 
 
-
-
-
-
-
-buildMapForGeotiff(); // Execute this on page load
-
-// Add a listener for the "newsource" event
-document.addEventListener('newsource', buildMapForGeotiff);
-
-
-
-
-// https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/21/H/UB/2021/9/S2B_21HUB_20210915_0_L2A/TCI.tif
-
-
 </script>
+
+
+
+
 
 <style>
 #map {

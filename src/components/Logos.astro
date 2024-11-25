@@ -1,8 +1,15 @@
 
-<!-- images/fairicube_logo_400x297.jpg in the lower right corner -->
-<div id="projectlogo"></div>
+<!-- images/fairicube_logo_400x297.jpg in the lower right corner --
+<a href="https://fairicube.eu"><div id="projectlogo"></div></a>
+-->
+
 <!-- NILU.svg in the lower left corner -->
-<object id="nilulogo" data="/NILU_Logo_Seagreen_RGB_small.svg" type="image/svg+xml"></object>
+
+<a href="https://nilu.com" id="nilulogo">
+  <object>
+    <embed src="/NILU_Logo_Seagreen_RGB_small.svg"></embed>
+</object>
+</a>  
 
 
     
@@ -24,10 +31,14 @@
 }
 #nilulogo {
   position: absolute;
-  bottom: 15px;
-  left: 120px;
-  width: 40px;
-  height: 40px;
+  bottom: 0.5rem;
+  left: 1rem;
+  width: 30px;
+  cursor: pointer;
+  color:pink;
+  object {
+    pointer-events: none;
+  }
   svg path {
     fill: currentColor;
     &:hover {

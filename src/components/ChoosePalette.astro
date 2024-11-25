@@ -1,14 +1,12 @@
 
 <div class="choosepalette">
-  <div>
     <label><input type="radio" name="palette" value="d3.interpolateViridis" checked />Viridis</label>
     <label><input type="radio" name="palette" value="d3.interpolateTurbo" />Turbo</label>
-    <label><input type="radio" name="palette" value="d3.interpolateBlues" />Blues</label>
-    <label><input type="radio" name="palette" value="d3.interpolateGnBu" />GnBu</label>
+    <label><input type="radio" name="palette" value="d3.interpolateOrRd" />Reds</label>
+    <label><input type="radio" name="palette" value="d3.interpolateGnBu" />Aqua</label>
     <label class="qgis"><input type="radio" name="palette" value="qgis" />QGIS</label>
     <label class="truecolor"><input type="radio" name="palette" value="rgb"/>True Color</label>
     <label class="invertpalette"><input type="checkbox" name="invertpalette"/>Invert</label>
-  </div>
 </div>
 
 
@@ -74,6 +72,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const radio = document.querySelector(`input[name="palette"][value="${palette}"]`);
   if (!radio) return;
   (radio as HTMLInputElement).checked = true;
+
+  const invertCheckbox = document.querySelector('input[name="invertpalette"]') as HTMLInputElement;
+  if (invertCheckbox) invertCheckbox.checked = localStorage.getItem('invertpalette')==='true';
 });
 
 </script>
@@ -82,37 +83,13 @@ document.addEventListener('DOMContentLoaded', () => {
 .choosepalette {
     display: flex;
     width: 100%;
-    position: absolute;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-end;
-    pointer-events: none;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    gap: 1rem;
 
-    div {
-        pointer-events: auto;
 
-        padding: 1rem;
-        opacity: 0.5;
-        transition: all 0.1s;
-        &:hover {
-          background-color: rgba(255, 255, 255, 0.6);
-          opacity: 1;
-        }
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        align-content: start;
-        justify-items: start;
-        justify-content: start;
-        gap: 1rem;
-        label {
-          cursor: pointer;
-          * {
-            cursor: pointer;
-          }
-        }
-    }
     input{
       display: none;
     }
@@ -121,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
       margin-right: 0.5rem;
     }
     label {
-      margin-bottom: 0;
+      cursor: pointer;
       transition: all 0.1s ease-in-out;
     }
     label:has(input:disabled) {
@@ -131,14 +108,9 @@ document.addEventListener('DOMContentLoaded', () => {
     label:has(input[name="palette"]:checked){
       color: var(--color-primary);
       font-weight: 600;
-      font-size: 1.2rem;
-      margin-top: 0.2rem;
-      margin-bottom: 0.2rem;
+      margin-left: 0.2rem;
+      margin-right: 0.2rem;
     }
 
-    top:0;
-    height: 100vh;
-    right: 1rem;
-    gap: 1rem;
 }
 </style>

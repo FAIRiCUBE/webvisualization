@@ -14,18 +14,41 @@ html {
 }
   
 .stactreeview {
-    background-color: color-mix(in srgb, var(--nilu-light-blue), 30% transparent);
+    /*background-color: color-mix(in srgb, var(--nilu-light-blue), 30% transparent);*/
+    background-color: transparent;
     transition: background-color 0.1s;
-    &:hover {
-      background-color: var(--nilu-light-blue);
+    summary {
+      .staclogo {
+          width: 50px;
+          height: 50px;
+          cursor: pointer;
+          display: inline-block;
+          background-image: url('/fairicube_logo_400x297.jpg');
+          background-size: contain;
+          background-repeat: no-repeat;
+          background-position: center;
+          vertical-align: middle;
+          mix-blend-mode: multiply; /* Set white as transparent */
+          transform: rotate(0deg);
+          transition: transform 0.4s ease-in-out;
+          &:hover {
+            transform: rotate(360deg);
+
+          }
+      }
+    }
+    &[open] {
+      background-color: #efefef;
+      max-height: 100vh;
+      height:100dvh;
     }
     max-height: 80vh;
     width: 20vw;
     padding: 1rem;
     overflow: auto;
     position: absolute;
-    top: 0.5vh;
-    left: 0.5vw;
+    top: 0;
+    left: 0;
 
     ul {
       list-style-type: none;

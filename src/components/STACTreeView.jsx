@@ -14,14 +14,15 @@ export default function STACTreeView(props) {
 
     setDummySignal(true);
  
-    return  <div class="stactreeview">
+    return  <details class="stactreeview">
+        <summary><div class="staclogo"/></summary>
         <For each={STACCatalogs()} fallback={<div>Loading...</div>}>
             
             {(collection, collectionIdx) => {
                 return <ViewCollection collection={collection} />
             }}
         </For>
-    </div>
+    </details>
 }
 
 
@@ -34,7 +35,7 @@ function ViewCollection({collection}) {
 
     if (collection.items.length===0) return null;
 
-    return <div>{collection.title}:
+    return <div>STAC: {collection.title}:
 
     <ul>
         <For each={collection.items}>

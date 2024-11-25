@@ -1,0 +1,30 @@
+<div class="opacityslidecontainer">
+    <input type="range" min="20" max="100" value="100" class="slider" 
+    title="Data opacity"
+    id="dataOpacity">
+</div>
+
+
+<script>
+    const slider = document.getElementById('dataOpacity');
+
+    if (slider) slider.addEventListener('input', () => {
+        const opacity = slider.value / 100;
+        localStorage.setItem('opacity', opacity);
+        document.dispatchEvent(new Event('newopacity'));
+    });
+</script>
+
+
+<style>
+.opacityslidecontainer{
+    font-size: 0.8rem;
+    justify-content: center;
+    align-items: center;
+    mix-blend-mode: multiply;
+}
+
+
+</style>
+
+

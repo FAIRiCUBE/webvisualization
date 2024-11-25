@@ -1,0 +1,25 @@
+---
+import OpacitySlider from './OpacitySlider.astro';
+import Colorbar from './Colorbar.astro';
+import ChoosePalette from './ChoosePalette.astro';
+---
+<div class="lower-right-corner-ui">
+    <OpacitySlider />
+    <Colorbar />
+
+    <ChoosePalette />
+</div>
+
+
+<style>
+.lower-right-corner-ui{
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-end;
+    gap: 0.5rem;
+    bottom: 1rem;
+    right: 1rem;
+}
+</style>

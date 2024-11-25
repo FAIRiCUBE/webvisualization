@@ -41,7 +41,7 @@ export async function getQGISColorfile(){
     } catch (error) {
         if (localStorage.getItem('palette')=='qgis') localStorage.setItem('palette', 'd3.interpolateBlues');
         document.dispatchEvent(new Event('newpalette'));
-        console.error('Error fetching QGISColorfile:', error);
+        //console.error('Error fetching QGISColorfile:', error);
     }
 }
 

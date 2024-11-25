@@ -13,23 +13,19 @@ export function getInterpolateBand1AsColor() {
 
 
   let color = getPaletteAsFunction();
-  // If inverted, change the color function domain to 1,0
-  if (pal!='qgis' && (localStorage.getItem('invertpalette')==='true')) color.domain([1,0]);
 
   console.assert(color, 'color is null');
 
-  let values = Array.from({length: 10}, (_, i) => i/10);
-  if (pal=='qgis') values = JSON.parse(localStorage.getItem('QGISColorfileValues'));
+
+  const {stops, stopsPct} = getColorStops();
 
   const clr_arr = [
     'interpolate',
     ['linear'],
     ['band', 1]];
   
-  for (const val of values) {
-    const clr = color(val);
-    console.assert(clr, `Error creating palette: colorFn(${val}) = ${clr}`);
-    clr_arr.push(val, clr);
+  for (const stop of stops) {
+    clr_arr.push(stop, color(stop));
   }
 
   return {color: clr_arr};
@@ -37,15 +33,52 @@ export function getInterpolateBand1AsColor() {
 }
 
 
+
+
+
+
 export function getPaletteAsGradient() {
 
-  const color = getPaletteAsFunction();
-  const pal = localStorage.getItem('palette');
+  const color = getPaletteAsFunction(); // A color function over the domain of the data values
   if (!color) return 'red';
+
+  const {stops, stopsPct} = getColorStops();
+
+  // Create the gradient. At each stop (% position) we have a color
   const gradient = [];
 
-  let stops = Array.from({length: 10}, (_, i) => i/10);
-  let stopsPct = stops.map(v => `${v*100}%`);
+  for(const [i, stop] of stops.entries()) {
+    gradient.push(`${color(stop)} ${stopsPct[i]}`);
+  }
+
+  return `linear-gradient(to right, ${gradient.join(',')})`;
+}
+
+
+
+/**
+ * Returns 10 regularly-spaced values in the domain of the data values
+ * and their percentage values.
+ * If the palette is QGIS, the stops are taken from the QGISColorfileValues
+ */
+function getColorStops(){
+
+  const pal = localStorage.getItem('palette') || 'd3.interpolateBlues';
+
+  // Stops are 10 regularly-spaced values in the domain of the data values
+  const min = parseFloat(localStorage.getItem('min')||'0');
+  const max = parseFloat(localStorage.getItem('max')||'1');
+  let stops = [];
+  let stopsPct = []; // Percentage values for the stops
+  for (let i=0; i<=10; i++) {
+    stops.push(min + i*(max-min)/10);
+    stopsPct.push(`${i*10}%`);
+  }
+
+
+  // The QGIS Color file may define color stops at irregular intervals
+  // So we must override the regular stops.
+  // Here we read these QGIS stop values and normalize them to percentage
   if (pal=='qgis') {
     stops = JSON.parse(localStorage.getItem('QGISColorfileValues'));
     // Normalize stops to percentage
@@ -54,18 +87,8 @@ export function getPaletteAsGradient() {
     stopsPct = stops.map(v => `${((v-min)/(max-min)*100).toFixed(2)}%`);
   }
 
-  for(const [i, stop] of stops.entries()) {
-    const c = color(stop);
-    gradient.push(`${c} ${stopsPct[i]}`);
-  }
-  let invert = localStorage.getItem('invertpalette')==='true';
-  if (pal=='qgis') invert = false;
-  if (pal=='rgb') invert = false;
-  if (invert) gradient.reverse();
-
-  return `linear-gradient(to right, ${gradient.join(',')})`;
-}
-
+  return {stops, stopsPct};
+} // getColorStops
 
 
 
@@ -73,7 +96,7 @@ export function getPaletteAsGradient() {
 
 
 /**
- * Returns a color function over the domain [0,1]
+ * Returns a color function over the domain of the data values
  * If palette is rgb, returns null
  * If palette is qgis, the domain is not [0,1] but the value range in the QGISColorfile
  * 
@@ -94,6 +117,7 @@ export function getPaletteAsFunction() {
     case 'd3.interpolateOranges': paletteFunction = d3.interpolateOranges; break;
     case 'd3.interpolateGreys': paletteFunction = d3.interpolateGreys; break;
     case 'd3.interpolateGnBu': paletteFunction = d3.interpolateGnBu; break;
+    case 'd3.interpolateOrRd': paletteFunction = d3.interpolateOrRd; break;
     case 'd3.interpolateRdYlBu': paletteFunction = d3.interpolateRdYlBu; break;
     case 'd3.interpolateRdYlGn': paletteFunction = d3.interpolateRdYlGn; break;
     case 'd3.interpolateRdYlBu': paletteFunction = d3.interpolateRdYlBu; break;
@@ -110,7 +134,9 @@ export function getPaletteAsFunction() {
     case 'd3.interpolateCool': paletteFunction = d3.interpolateCool; break;
     case 'd3.interpolateRainbow': paletteFunction = d3.interpolateRainbow; break;
     case 'd3.interpolateSinebow': paletteFunction = d3.interpolateSinebow; break;
-    default: console.error(`Unknown palette: ${palette}`);
+    default: 
+    window.newToast(`Unknown palette: ${palette}`);
+    console.error(`Unknown palette: ${palette}`);
   }
   // = eval(palette);
   const invert = localStorage.getItem('invertpalette');
@@ -121,5 +147,16 @@ export function getPaletteAsFunction() {
     [min, max] = [max, min];
   }
 */
-  return d3.scaleSequential(paletteFunction);//.domain([min, max]);
+  return (valueInDataValuesDomain) => {
+    if (valueInDataValuesDomain==0) return 'rgba(0,0,0,0)';
+
+    const min = parseFloat(localStorage.getItem('min')||'0');
+    const max = parseFloat(localStorage.getItem('max')||'1');
+
+    // If inverted, change the color function domain to 1,0
+    if (localStorage.getItem('invertpalette')==='true') 
+      valueInDataValuesDomain =  max-valueInDataValuesDomain;
+
+    return d3.scaleSequential(paletteFunction).domain([min, max])(valueInDataValuesDomain);
+  }
 }
