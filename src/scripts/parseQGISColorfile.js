@@ -18,17 +18,18 @@ localStorage.setItem('QGISColorfile', raw);
 export async function getQGISColorfile(){
     const url = localStorage.getItem('url');
     if (!url) return null;
-    const doFake = url.includes('twi_2019_10m_b1_COG.tif');
-
-    if (!doFake) return null;
+    //const doFake = url.includes('twi_2019_10m_b1_COG.tif');
+    //if (!doFake) return null;
 
     const colorfileurl = url.replace('.tif', '.gdaldemrgb');
     localStorage.setItem('QGISColorfile', '');
-    console.warn('Using fake QGISColorfile');
+    
+    
+    /*console.warn('Using fake QGISColorfile');
     localStorage.setItem('QGISColorfile', raw);
     localStorage.setItem('palette', 'qgis');
     document.dispatchEvent(new Event('newpalette'));
-    return;
+    return;*/
 
     try {
         const response = await fetch(colorfileurl);
