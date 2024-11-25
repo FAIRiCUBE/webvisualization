@@ -21,5 +21,14 @@ import ChoosePalette from './ChoosePalette.astro';
     gap: 0.5rem;
     bottom: 1rem;
     right: 1rem;
+    max-width: 100vw;
+    overflow: auto;
+}
+@media (max-width: 40rem) {
+    .lower-right-corner-ui {
+        width: 100vw;
+        right: 0;
+        bottom: 0.5rem;
+    }
 }
 </style>

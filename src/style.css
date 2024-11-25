@@ -12,12 +12,19 @@
 html {
   font-family: 'Inter', 'System-ui', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
 }
-  
+
+@keyframes shift-right {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(1rem); }
+  100% { transform: translateX(0); }
+}
+
 .stactreeview {
     /*background-color: color-mix(in srgb, var(--nilu-light-blue), 30% transparent);*/
     background-color: transparent;
     transition: background-color 0.1s;
     summary {
+
       .staclogo {
           width: 50px;
           height: 50px;
@@ -29,21 +36,22 @@ html {
           background-position: center;
           vertical-align: middle;
           mix-blend-mode: multiply; /* Set white as transparent */
-          transform: rotate(0deg);
+          position: relative;
           transition: transform 0.4s ease-in-out;
+          transform: translateX(0);
           &:hover {
-            transform: rotate(360deg);
-
+            /* Play an animaton to shift it right 2rem  then back again */
+            animation: shift-right 0.4s ease-in-out;
           }
       }
     }
     &[open] {
       background-color: #efefef;
-      max-height: 100vh;
+      max-height: 100dvh;
       height:100dvh;
     }
-    max-height: 80vh;
-    width: 20vw;
+    max-height: 80dvh;
+    width: max(20vw, 14rem);
     padding: 1rem;
     overflow: auto;
     position: absolute;

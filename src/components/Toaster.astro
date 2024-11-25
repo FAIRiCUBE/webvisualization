@@ -34,7 +34,7 @@ window.newToast = ( message) => {
     position: fixed;
     right: 1rem;
     top: 1rem;
-    max-width: 40rem;
+    max-width: min(40rem, 100vw);
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
@@ -57,6 +57,16 @@ window.newToast = ( message) => {
             box-shadow: 5px 5px 10px 0 var(--nilu-bright-accent);
         }
     }
+}
+@media (max-width: 40rem) {
+    #toaster {
+        right: 0;
+        top: 1rem;
+        width: 100vw;
+        .toast {
+            background-color: #eee;
+            border-radius: 2px;
+        }
 }
 
 </style>
