@@ -8,6 +8,9 @@ import Toaster from "../components/Toaster.astro";
 import ChoosePalette from "../components/ChoosePalette.astro";
 import COGURL from "../components/COGURL.astro";
 export const prerender = true;
+
+import "../style.css";
+
 ---
 
 
@@ -41,7 +44,6 @@ export const prerender = true;
 
 
 <style is:global>
-@import "../style.css";
 
 body {
     margin: 0;
