@@ -45,6 +45,27 @@ export async function getQGISColorfile(){
     }
 }
 
+
+/**
+ * Try and get the .palettename.txt file for the URL
+ * This will trigger a "newpalette" event if found
+ * @returns 
+ */
+export async function getPalettenameFile(){
+    const url = localStorage.getItem('url');
+    if (!url) return null;
+    try {
+        const palettenameurl = url.replace('.tif', '.palettename.txt');
+        const response = await fetch(palettenameurl);
+        if (!response.ok) return null;
+        const text = await response.text();
+        localStorage.setItem('palettename', text);
+        document.dispatchEvent(new Event('newpalette'));
+    } catch (e) {
+    }
+}
+
+
 /**
  * Returns a function which accepts a value in the domain
  * of the QGISColorfile and returns a color.

@@ -18,7 +18,7 @@ import { getInterpolateBand1AsColor } from '../scripts/palette.js';
 import { transformExtent, Projection, get as getProjection, fromLonLat } from 'ol/proj';
 import {register,fromEPSGCode} from 'ol/proj/proj4';
 import proj4 from 'proj4'
-import {getQGISColorfile} from '../scripts/parseQGISColorfile.js';
+import {getQGISColorfile, getPalettenameFile} from '../scripts/parseQGISColorfile.js';
 
 
 let source : any = null;
@@ -116,6 +116,11 @@ async function buildMapForGeotiff() {
       //window.newToast(`.tif.aux.xml says min=${geotiffSource.min}, max=${geotiffSource.max}`);
     }
   });
+
+  // Launch an async function to try and get a .palettename.txt for this URL  
+  // This will trigger a "newpalette" event if found
+  getPalettenameFile();
+
 
   // Launch an async function to try and get a QGIS colorfile for the palette
   // This will trigger a "newpalette" event if a QGIS colorfile is found
