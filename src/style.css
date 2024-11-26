@@ -15,7 +15,7 @@ html {
 
 @keyframes shift-right {
   0% { transform: translateX(0); }
-  50% { transform: translateX(1rem); }
+  50% { transform: translateX(0.7rem); }
   100% { transform: translateX(0); }
 }
 
@@ -49,11 +49,12 @@ details.stactreeview {
           cursor: pointer;
           display: inline-block;
           background-image: url('/fairicube_logo_400x297.jpg');
+          background-image: url('/Logo_FAIRiCUBE_RGB 1.svg');
           background-size: contain;
           background-repeat: no-repeat;
           background-position: center;
           vertical-align: middle;
-          mix-blend-mode: multiply; /* Set white as transparent */
+          /*mix-blend-mode: multiply; /* Set white as transparent */
           position: relative;
           transition: transform 0.4s ease-in-out;
           transform: translateX(0);
