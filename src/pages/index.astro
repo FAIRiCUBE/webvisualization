@@ -8,6 +8,7 @@ import Toaster from "../components/Toaster.astro";
 import ChoosePalette from "../components/ChoosePalette.astro";
 import COGURL from "../components/COGURL.astro";
 import Matomo from "../components/Matomo.astro";
+import CheckWebGLSupport from "../components/CheckWebGLSupport.astro";
 export const prerender = true;
 
 import "../style.css";
@@ -33,6 +34,8 @@ import "../style.css";
     <STACTreeView client:idle />
 
     <Logos />
+
+    <CheckWebGLSupport />
 
     <LowerRightCornerUI />
 
