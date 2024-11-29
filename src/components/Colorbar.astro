@@ -23,9 +23,16 @@ function updateColorbar() {
   for (const value of stops){
     const div = document.createElement('div');
     // Creat a label that shows three significant digits
+    try {
     const label = value.toPrecision(3);
     div.innerHTML = label;
     colorbar.appendChild(div);
+    } catch (e) {
+      console.log(`Error in updateColorbar. E=`,e);
+      console.log(`Error in updateColorbar. value`,value);
+      console.log(`Error in updateColorbar. stops`,stops);
+    }
+    
   }
   colorbar.style.background = getPaletteAsGradient();
   return;
