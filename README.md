@@ -45,3 +45,14 @@ builds the app for production and compiles the web page(s) the `dist` folder.<br
 ### Github Pages
 This repo contains a `.yml` file in ./github/workflows which builds the webapp and deploys it to GitHub Pages.
 
+
+## Creating Cloud Optimized GeoTIFFs
+
+The easiest way is 
+```
+gdalwarp -of COG -t_srs EPSG:3857   inputdata.tiff result.tiff
+```
+This will create the COG file, including overview tiles, and warp it to EPSG:3857 which is the normal for web maps.
+
+Learn about COG format here: https://cogeo.org/
+
