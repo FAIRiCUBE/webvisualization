@@ -32,20 +32,33 @@ export function getInterpolateBand1AsColor() {
   const {stops} = getColorStops();
 
   let band_selector = ['band', 1];
+  const bandCount = parseInt(localStorage.getItem('bandcount')||'1');
 
-  // Here we sample the data from the first band
-  // UNLESS the second band (the NODATA band) is 1. In that case, the data value is 0.
-  if (localStorage.getItem('bandcount')==='2'){
-    const data_band = ['band', 1];
-    const nodata_band = ['band', 2];
-    band_selector  = ['case', [['==', nodata_band, 0], data_band, 0]];
+  const ndvalue = parseFloat(localStorage.getItem('min')||'0') - 0.1;
+
+
+  let clr_arr = null;
+
+  if (bandCount==1){
+    clr_arr = [
+      'interpolate',
+      ['linear'],
+      ['band', 1],
+    ];
+  } else {
+    // If there are multiple bands, we sample the data from the first band, and assume the last band is the NODATA band.
+    clr_arr = [
+      'interpolate',
+      ['linear'],
+      ['case', 
+        ['==', ['band',bandCount], 0],
+           ndvalue,
+           ['band',1]
+      ],
+      ndvalue, 'rgba(255,255,255,0)'
+    ];
   }
 
-  const clr_arr = [
-    'interpolate',
-    ['linear'],
-    band_selector];
-  
   for (const stop of stops) {
     clr_arr.push(stop, color(stop));
   }

@@ -149,6 +149,7 @@ async function buildMapForGeotiff() {
     flag_styleIsSet = true; // Set the flag
     //window.newToast(`Got image with ${event.target.bandCount} bands`);
     localStorage.setItem('bandcount', event.target.bandCount.toString());
+    console.log(`Map.astro: Got a tile with ${event.target.bandCount} bands`);
     document.dispatchEvent(new Event('newbandcount'));
     if (layer) (layer as TileLayer).setStyle(getInterpolateBand1AsColor()); // Set the style
   });
