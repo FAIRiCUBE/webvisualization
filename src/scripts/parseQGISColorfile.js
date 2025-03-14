@@ -1,5 +1,3 @@
-//0.18361639675688013,247,251,255,0,<= 0.184
-//0.20085971412133119,175,209,231,255,0.197 - 0.201
 
 const raw = `# QGIS Generated Color Map Export File
 INTERPOLATION:DISCRETE
@@ -13,7 +11,9 @@ INTERPOLATION:DISCRETE
 0.2220374814135834,34,114,181,255,0.215 - 0.222
 0.2423891558630224,10,84,158,255,0.222 - 0.242
 inf,8,48,107,255,> 0.242`;
-localStorage.setItem('QGISColorfile', raw);
+//localStorage.setItem('QGISColorfile', raw);
+//QGISColorfileAsd3ColrFn();
+
 
 export async function getQGISColorfile(){
     const url = localStorage.getItem('url');
@@ -49,7 +49,6 @@ export async function getQGISColorfile(){
 /**
  * Try and get the .palettename.txt file for the URL
  * This will trigger a "newpalette" event if found
- * @returns 
  */
 export async function getPalettenameFile(){
     const url = localStorage.getItem('url');

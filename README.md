@@ -1,4 +1,60 @@
 
+## Using QGIS to define a recommended color ramp for your dataset
+
+This tool allows you to export a QGIS color ramp which will be
+used as the default palette when users view your COG file.
+
+To do this, simply save the QGIS color ramp in a text file
+as a sibling with your data file, with the suffix `.gdaldemrgb`.
+For example if your file is 
+called `X.tiff`, save the color ramp as a text file called `X.gdaldemrgb`.
+
+The visualization tool will automatically check for the presense of such 
+a file, and if found, use it as the default palette.
+
+Here is an example of the format expected in this `.gdaldemrgb` file:
+
+```
+# QGIS Generated Color Map Export File
+INTERPOLATION:DISCRETE
+0.18361639675688013,247,251,255,255,<= 0.184
+0.1914761584173186,226,237,248,255,0.184 - 0.191
+0.19652318360632007,205,224,241,255,0.191 - 0.197
+0.20085971412133119,175,209,231,255,0.197 - 0.201
+0.20510714723349466,137,190,220,255,0.201 - 0.205
+0.20948479962674316,96,166,210,255,0.205 - 0.209
+0.21458802471600238,62,142,196,255,0.209 - 0.215
+0.2220374814135834,34,114,181,255,0.215 - 0.222
+0.2423891558630224,10,84,158,255,0.222 - 0.242
+inf,8,48,107,255,> 0.242
+```
+So the format is `LowerValue, R,G,B, Label`, 
+where `R,G,B` are values in the range 0-255 specifying the RGB color 
+interpolation point. The palette will be clamped, so values outside the defined
+range will use the lowest/highest color defined.
+
+Additionally it is possible to set the default palette for your 
+dataset to True Color RGB, Viridis, Turbo, Orange/Red, or Green/Blue.
+You can do this by creating a sidecar file with the `.palettename.txt` 
+extension, and this file should contain one of the following values:
+```
+d3.interpolateViridis
+d3.interpolateTurbo
+d3.interpolateOrRd
+d3.interpolateGnBu
+rgb
+qgis
+```
+
+If the value is `rgb` the source file will be treated as a RGB image file, not a 
+single-band raw data file.
+
+Note that the `qgis` value is redundant, since the same effect can be acheieved by 
+omitting the `.palettename.txt` and providing a `.gdaldemrgb` sidecar instead.
+
+
+
+
 ## About this repo
 
 This repo is a serverless (i.e. javascript + html only) viewer for Cloud Optimized GeoTiff (COG) files.

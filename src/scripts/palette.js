@@ -4,12 +4,24 @@ import * as d3 from 'd3';
 import QGISColorfileAsd3ColrFn from './parseQGISColorfile';
 
 
+// TODO: Improve this using https://openlayers.org/en/latest/examples/cog-style.html
+
 export function getInterpolateBand1AsColor() {
 
   const pal = localStorage.getItem('palette') || 'd3.interpolateBlues';
 
-  if (pal.toLowerCase()=='rgb')
-    return { color: ['array', ['band', 1], ['band', 2], ['band', 3], 1] };
+  if (pal.toLowerCase()=='rgb') {
+    // If bandCount is 3, return the color array for the true color image
+    if (localStorage.getItem('bandcount')==='3') {
+      return { color: ['array', ['band', 1], ['band', 2], ['band', 3], 1] };
+    } else if (localStorage.getItem('bandcount')==='4') {
+    // Otherwise, return the color array for the false color image
+      return { color: ['array', ['band', 1], ['band', 2], ['band', 3], ['band', 4]] };
+    } else {
+      console.error(`getInterpolateBand1AsColor: bandcount for "rgb" palette must be 3 or 4, not "${localStorage.getItem('bandcount')}"`);
+      return { color: ['array', ['band', 1], ['band', 2], ['band', 3], 1] };
+    }
+  }
 
 
   let color = getPaletteAsFunction();
@@ -19,14 +31,26 @@ export function getInterpolateBand1AsColor() {
 
   const {stops} = getColorStops();
 
+  let band_selector = ['band', 1];
+
+  // Here we sample the data from the first band
+  // UNLESS the second band (the NODATA band) is 1. In that case, the data value is 0.
+  if (localStorage.getItem('bandcount')==='2'){
+    const data_band = ['band', 1];
+    const nodata_band = ['band', 2];
+    band_selector  = ['case', [['==', nodata_band, 0], data_band, 0]];
+  }
+
   const clr_arr = [
     'interpolate',
     ['linear'],
-    ['band', 1]];
+    band_selector];
   
   for (const stop of stops) {
     clr_arr.push(stop, color(stop));
   }
+
+
 
   return {color: clr_arr};
     
@@ -114,10 +138,11 @@ export function getColorStopsShort(){
   // So we must override the regular stops.
   // Here we read these QGIS stop values and normalize them to percentage
   if (pal=='qgis') {
-    stops = JSON.parse(localStorage.getItem('QGISColorfileValues'));
-    const nstops = stops.length;
+    let tmpstops = JSON.parse(localStorage.getItem('QGISColorfileValues'));
+    const nstops = tmpstops.length;
+    if (nstops==0) return {stops};
     // Normalize stops to percentage
-    stops = [stops[0], stops[Math.floor(nstops*.3)], stops[Math.ceil(nstops*.6)], stops[nstops-1]];
+    stops = [tmpstops[0], tmpstops[Math.floor(nstops*.3)], tmpstops[Math.ceil(nstops*.6)], tmpstops[nstops-1]];
   }
 
   return {stops};

@@ -1,3 +1,11 @@
+<!-----
+
+
+This is a UI component that displays a colorbar, as part of the legend.
+The colorbar has a color gradient and numeric labels.
+
+
+--- -->
 <div id="colorbar"></div>
 
 <script>
@@ -8,6 +16,10 @@ document.addEventListener('newpalette', updateColorbar);
 document.addEventListener('newsource', updateColorbar);
 
 
+/*
+  Update the colorbar part of the legend to show the correct palette and value stops.
+  This is called when the palette or source changes.
+*/
 function updateColorbar() {
 
   const colorbar = document.getElementById('colorbar');

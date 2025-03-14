@@ -78,7 +78,7 @@ async function buildMapForGeotiff() {
   let url = localStorage.getItem('url');
 
   if (!url) {
-    console.error(`No URL in localStorage`);
+    console.warn(`No URL found in localStorage, map will be empty.`);
     return;
   }
 
@@ -112,7 +112,7 @@ async function buildMapForGeotiff() {
       localStorage.setItem('min', geotiffSource.min.toString());
       localStorage.setItem('max', geotiffSource.max.toString());
       document.dispatchEvent(new Event('newpalette'));
-      console.log(`{${url} says min=${geotiffSource.min}, max=${geotiffSource.max}`);
+      console.log(`Map.astro: {${url} says min=${geotiffSource.min}, max=${geotiffSource.max}`);
       //window.newToast(`.tif.aux.xml says min=${geotiffSource.min}, max=${geotiffSource.max}`);
     }
   });

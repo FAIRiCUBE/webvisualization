@@ -74,7 +74,7 @@ async function getItems(collection: Collection): Promise<Items>{
         item.assets = Object.entries(item.assets).map(([key, val]) => ({...val, id: key}));
 
         // Remove assets that do not contain "data" or "overview" in the .roles array
-        item.assets = item.assets.filter((asset: any) => asset.roles.includes("data") || asset.roles.includes("overview"));
+        item.assets = item.assets.filter((asset: any) => asset.roles.includes("overview"));
         //item.assets = item.assets.filter((asset: any) => asset.roles.includes("data"));
 
         // Remove assets that do not have a .href
@@ -90,7 +90,7 @@ async function getItems(collection: Collection): Promise<Items>{
     items = items.filter((item) => item.assets.length > 0);
 
     if (count != items.length){
-        console.log(`Removed ${count - items.length} items from collection ${collection.id} (kept only items with a 'data' or 'thumbnail' role, and where the .href ends with .tif,.png,.jpg,.jpeg,.gif,.bmp,.webp, or .geojson)`);
+        console.log(`Removed ${count - items.length} items from collection ${collection.id} (kept only items with a  'overview' role, and where the .href ends with .tif,.png,.jpg,.jpeg,.gif,.bmp,.webp, or .geojson)`);
     }
 
     return items;
