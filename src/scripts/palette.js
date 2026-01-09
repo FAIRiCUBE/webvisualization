@@ -36,7 +36,7 @@ export function getInterpolateBand1AsColor() {
 
   const ndvalue = parseFloat(localStorage.getItem('min')||'0') - 0.1;
 
-
+  console.log('ndvalue',ndvalue);
   let clr_arr = null;
 
   if (bandCount==1){
